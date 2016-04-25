@@ -1,5 +1,5 @@
-# Fitbit activity data analysis
-April, 2015
+# FitBit Activity data Analysis
+24th April  
 
 ### Description
 
@@ -36,7 +36,8 @@ dataset.
 The repo has been forked, downloaded to github desktop and used for analysis
 unzip the file `activity.zip` and load it into a dataframe `data`
 
-```{r}
+
+```r
 data<-read.csv("activity/activity.csv")
 ```
 
@@ -44,14 +45,17 @@ data<-read.csv("activity/activity.csv")
 
 Sum total number of steps by day (date), create a histogram, calculate mean and median
 
-```{r}
+
+```r
 steps_eachday<-aggregate(steps~date,data,sum)
 hist(steps_eachday$steps,main = "Total steps per each day", col = "red", xlab = "Number of steps")
 ```
 
-![numberofsteps](./figure/Rplot1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)
 
-```{r}
+
+
+```r
 steps_mean<-mean(steps_eachday$steps)
 steps_median<-median(steps_eachday$steps)
 ```
@@ -64,17 +68,18 @@ The mean thus obtained is `steps_mean` = 10766.188, median is `steps_median` = 1
 * Plot the Average Number Steps per Day by Interval into a time series plot. 
 * Find interval with most average steps. 
 
-```{r}
+
+```r
 steps_eachinterval <- aggregate(steps ~ interval, data, mean)
 plot(steps_eachinterval$interval,steps_eachinterval$steps, type="l", xlab="Interval of the day", ylab="Number of Steps",main="Average Number of Steps per Interval")
-
 ```
 
-![stepsperintervaltimeseries](./figure/Rplot2.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)
 
-``` {r}
+
+
+```r
 max_steps<-steps_eachinterval[which.max(steps_eachinterval$steps),1]
-
 ```
 
 The 5-minute interval containing the maximum number of steps in the data is 835.
@@ -82,20 +87,23 @@ The 5-minute interval containing the maximum number of steps in the data is 835.
 ## Impute missing values. Compare imputed to non-imputed data.
 Missing data (NA) needed to be imputed. Missing values were imputed by inserting the average for each interval.  
 
-```{r}
+
+```r
 noofNAs<- sum(!complete.cases(data))
 rearranged_data <- transform(data, steps = ifelse(is.na(data$steps), steps_eachinterval$steps[match(data$interval, steps_eachinterval$interval)], data$steps))
 ```
 
 Zeroes were imputed for 10-01-2012 because it was the first day and would have been over 9,000 steps higher than the following day, which had only 126 steps which is very high. 
 
-```{r}
+
+```r
 rearranged_data[as.character(rearranged_data$date) == "2012-10-01", 1] <- 0
 ```
 
 Recount total steps by day and create Histogram. 
 
-```{r}
+
+```r
 steps_eachday_re <- aggregate(steps ~ date, rearranged_data, sum)
 hist(steps_eachday_re$steps, main = paste("Total steps per each day"), col="red", xlab="Number of Steps")
 
@@ -104,25 +112,29 @@ hist(steps_eachday$steps, main = paste("Total steps per each day"), col="blue", 
 legend("topright", c("Imputed", "Non-imputed"), col=c("red", "blue"), lwd=10)
 ```
 
-![reaarangedplot](./figure/Rplot3.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)
+
 
 Calculate new mean and median for imputed data. 
 
-```{r}
+
+```r
 steps_mean_re <- mean(steps_eachday_re$steps)
 steps_median_re <- median(steps_eachday_re$steps)
 ```
 
 Calculate difference between imputed and non-imputed data.
 
-```{r}
+
+```r
 mean_difference <- steps_mean_re - steps_mean
 median_difference <- steps_median_re - steps_median
 ```
 
 Calculate total difference.
 
-```{r}
+
+```r
 total_difference_steps <- sum(steps_eachday_re$steps) - sum(steps_eachday$steps)
 ```
 * The imputed data mean is 10589.69
@@ -135,7 +147,8 @@ total_difference_steps <- sum(steps_eachday_re$steps) - sum(steps_eachday$steps)
 ## Are there differences in activity patterns between weekdays and weekends?
 Created a plot to compare and contrast number of steps between the week and weekend. There is a higher peak earlier on weekdays, and more overall activity on weekends.  
 
-```{r}
+
+```r
 library(lattice)
 weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", 
               "Friday")
@@ -146,4 +159,5 @@ steps_eachinterval_re <- aggregate(steps ~ interval + dayclassify, rearranged_da
 xyplot(steps_eachinterval_re$steps ~ steps_eachinterval_re$interval|steps_eachinterval_re$dayclassify, main="Average Steps per Day by Interval",xlab="Interval", ylab="Steps",layout=c(1,2), type="l")
 ```
 
-![weekendweekday](./figure/Rplot4.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)
+
